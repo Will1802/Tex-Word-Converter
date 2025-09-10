@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+# Setup specific
+C Code/.vs
+C Code/out
