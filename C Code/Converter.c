@@ -18,13 +18,12 @@ int main(){
 	int fileAttributes;
 	while(sucess){
 		sucess = FindNextFile(fileHandle, &fileData);
-		fileAttributes = fileData.dwFileAttributes;
 		if (sucess && ((fileAttributes | 16) != fileAttributes)) {
 			// ((fileAttributes | 16) == fileAttributes) is to check if the file is a directory
 			// Directories aren't files we want to parse
-
-
+			
 			// Temp placeholder code to check that it works as expected
+			fileAttributes = fileData.dwFileAttributes;
 			printf("%d\n", fileAttributes);
 			printf("%s\n", fileData.cFileName);
 
