@@ -1,35 +1,77 @@
 #include <stdio.h> 
 #include <Windows.h>
 
-int main(){
+#define BUFFERMULTIPLIER 1.5
+
+int reallocBuffer(char** Buffer, int* CurrentSize, int sizeOfAddition, int bytesInBuffer) {
+	// Buffer will be realloced and resized to 1.5x approx, currentSize will be altered
+	// Returns 1 for sucess, 0 for failure
+	// TODO: Test
+
+	printf("Running a realloc");	// Some placeholder
+	*CurrentSize = *CurrentSize * BUFFERMULTIPLIER;
+	char* newPointer = realloc(*Buffer, *CurrentSize);
+	if (newPointer == NULL) {
+		return 0;	// Error
+	}
+	
+	int bytesNeeded = sizeOfAddition + bytesInBuffer;
+	if (bytesNeeded >= *CurrentSize) {
+		return reallocBuffer(*Buffer, CurrentSize, sizeOfAddition, bytesInBuffer);
+	}
+
+	// Otherwise its all good...
+	*Buffer = newPointer;
+	return 1;	// Sucess
+
+}
+
+
+int main() {
 	WIN32_FIND_DATAA fileData;
 	HANDLE fileHandle;
-	HANDLE nextHandle;
 	fileHandle = FindFirstFile("*", &fileData);	// This will return . file
 
 	if (fileHandle == INVALID_HANDLE_VALUE) {
 		printf("Failed to open the first file, terminating program...");
 		return -1;
 	}
-	boolean sucess;
 
-	sucess = FindNextFile(fileHandle, &fileData);	// This will return .. file, call just to have OS discard.
+	boolean sucess;
 	int filesFound = 0;
 	int fileAttributes;
-	while(sucess){
-		sucess = FindNextFile(fileHandle, &fileData);
-		if (sucess && ((fileAttributes | 16) != fileAttributes)) {
-			// ((fileAttributes | 16) == fileAttributes) is to check if the file is a directory
-			// Directories aren't files we want to parse
-			
-			// Temp placeholder code to check that it works as expected
-			fileAttributes = fileData.dwFileAttributes;
-			printf("%d\n", fileAttributes);
-			printf("%s\n", fileData.cFileName);
+	char FilesToParse[256] = { 0 };
+	char* BufferStart = &FilesToParse;
+	//char* WriteIndex = &FilesToParse;
+	int bytesWritten = 0;
+	int bufferSize = 256;
+	HANDLE nextHandle;
 
+	sucess = FindNextFile(fileHandle, &fileData);	// This will return .. file, call just to have OS discard.
+
+
+	while (sucess) {
+		sucess = FindNextFile(fileHandle, &fileData);
+		if (!sucess) {
+			// Failed to fine a next file, the directory is typically all read
+			break;
+		}
+
+		fileAttributes = fileData.dwFileAttributes;
+
+		if ((fileAttributes | 16) != fileAttributes) {
+			// Check if the file is a directory
+			// Directories aren't files we want to parse
+
+			int nameLen = strlen(fileData.cFileName);
+			if (nameLen + bytesWritten >= bufferSize){
+				reallocBuffer(&BufferStart, &bufferSize, nameLen, bytesWritten);
+			}
+			printf("%s \n", fileData.cFileName);
+
+			strcpy(BufferStart + bytesWritten, fileData.cFileName);
+			bytesWritten += strlen(fileData.cFileName) + 1; // +1 for null termination
 			filesFound += 1;
 		}
 	}
-	// Testing basic funtionality
-	printf("%d", filesFound);
 }
