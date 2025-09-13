@@ -3,6 +3,21 @@
 
 #define BUFFERMULTIPLIER 1.5
 
+void convertFile(char* FileToParse) {
+	FILE* filePointer;
+
+	filePointer = fopen(FileToParse, "r");
+
+	char buffer[100] = { 0 };
+	fgets(&buffer, 100, filePointer);
+
+	printf("File contents: %s \n", &buffer);
+
+	fclose(filePointer);
+
+}
+
+
 int reallocBuffer(char** Buffer, int* CurrentSize, int sizeOfAddition, int bytesInBuffer) {
 	// Buffer will be realloced and resized to 1.5x approx, currentSize will be altered
 	// Returns 1 for sucess, 0 for failure
@@ -67,11 +82,22 @@ int main() {
 			if (nameLen + bytesWritten >= bufferSize){
 				reallocBuffer(&BufferStart, &bufferSize, nameLen, bytesWritten);
 			}
-			printf("%s \n", fileData.cFileName);
 
 			strcpy(BufferStart + bytesWritten, fileData.cFileName);
 			bytesWritten += strlen(fileData.cFileName) + 1; // +1 for null termination
 			filesFound += 1;
 		}
+	}
+	int stringStartIndex = 0;
+	for (int i = 0; i < filesFound; i++) {
+		int fileNameLen = strlen(stringStartIndex + BufferStart);
+
+
+		convertFile(BufferStart + stringStartIndex);
+		char* fileName = malloc(fileNameLen);
+
+		printf("%s \n", BufferStart + stringStartIndex);
+
+		stringStartIndex += fileNameLen + 1;	// +1 to account for null terminated byte
 	}
 }
