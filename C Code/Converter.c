@@ -3,13 +3,15 @@
 
 #define BUFFERMULTIPLIER 1.5
 
-void convertFile(char* FileToParse) {
+void convertFileWordToTex(char* FileToParse) {
 	FILE* filePointer;
 
 	filePointer = fopen(FileToParse, "r");
 
 	char buffer[100] = { 0 };
-	fgets(&buffer, 100, filePointer);
+	while (fgets(&buffer, 100, filePointer)) {
+		// Continuosly parse
+	}
 
 	printf("File contents: %s \n", &buffer);
 
@@ -92,11 +94,9 @@ int main() {
 	for (int i = 0; i < filesFound; i++) {
 		int fileNameLen = strlen(stringStartIndex + BufferStart);
 
-
 		convertFile(BufferStart + stringStartIndex);
-		char* fileName = malloc(fileNameLen);
 
-		printf("%s \n", BufferStart + stringStartIndex);
+		//printf("%s \n", BufferStart + stringStartIndex);
 
 		stringStartIndex += fileNameLen + 1;	// +1 to account for null terminated byte
 	}
