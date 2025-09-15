@@ -1,1 +1,0 @@
-add_executable(Converter Converter.c)
